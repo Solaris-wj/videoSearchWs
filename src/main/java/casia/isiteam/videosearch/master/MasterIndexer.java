@@ -1,23 +1,60 @@
 package casia.isiteam.videosearch.master;
 
-import java.net.MalformedURLException;
+import java.io.IOException;
+import java.net.URL;
+import java.util.concurrent.CopyOnWriteArraySet;
+import javax.xml.ws.Endpoint;
+import casia.isiteam.videosearch.slave.client.SlaveIndexerClient;
 
-
-
+/**
+ * 
+ * @author dell
+ * 
+ */
 public class MasterIndexer {
 
-	String host="0.0.0.0";
-	int port=9100;
-	SlaveManager slaveManager;
+	private CopyOnWriteArraySet<SlaveIndexerClient> slaveIndexer=null;
 	
-	
-	public MasterIndexer() throws MalformedURLException{
-		//准备接受 slave index 注册，报告信息等
-		slaveManager = new SlaveManager(host,port);	
-	}
+	private SlaveRegisterService slaveRegisterService=null;
+	private MasterIndexService masterIndexService=null;
 
 	
-	public static void main(String[] args){
-		//MasterIndexer masterIndexer=new MasterIndexer();
+	Configuration configuration;
+	public MasterIndexer(String configFilePath) throws IOException {
+		
+		configuration=new Configuration(configFilePath);
+		
+		slaveIndexer = new CopyOnWriteArraySet<SlaveIndexerClient>();
+		
+		Thread thread=new Thread(new MasterFileServer(configuration.fileTransferPort,configuration.tempFileDir));
+		thread.start();
+		
+		//发布注册服务
+		URL url=new URL("http", configuration.host, configuration.servicePort, SlaveRegisterService.class.getSimpleName());
+		slaveRegisterService = new SlaveRegisterServiceImpl(this);
+		Endpoint.publish(url.toString(), slaveRegisterService);
+		
+		
+		//对外发布检索服务
+		URL urlService=new URL("http",configuration.host,configuration.servicePort,MasterIndexService.class.getSimpleName());
+		masterIndexService = new MasterIndexServiceImpl(this);		
+		Endpoint.publish(urlService.toString(), masterIndexService);
+	}
+
+	final CopyOnWriteArraySet<SlaveIndexerClient> getSlaveIndexer() {
+		return slaveIndexer;
+	}
+	
+	
+	public static void main(String [] args) throws IOException{
+		if(args.length < 1){
+			System.out.println("args <1");
+			System.out.println("must provide configure file");
+		}
+		
+		String configFilePath=args[0];
+		
+		@SuppressWarnings("unused")
+		MasterIndexer masterIndexer=new MasterIndexer(configFilePath);
 	}
 }

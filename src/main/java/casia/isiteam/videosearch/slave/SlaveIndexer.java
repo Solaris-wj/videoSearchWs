@@ -4,47 +4,43 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+
 import javax.xml.ws.Endpoint;
+
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
+
 import casia.isiteam.videosearch.master.SlaveRegisterService;
 
 
 public class SlaveIndexer {
-	private IndexImpl indexImpl=null;
-
-	String tempFileDir=null;
-	String dataDir=null;
-	String logDir=null;
+	
 	String configFilePath=null;
-	String algoConfFilePath=null;
-	
-	String masterHost=null;
-	int masterPort;
-	
-	String localhost=null;
-	int localPort;
 	Configuration configuration=null;
-	public SlaveIndexer(String confFilePath, String algoConfFilePath) throws IOException, URISyntaxException {
+	public SlaveIndexer(String confFilePath) throws IOException, URISyntaxException {
 		this.configFilePath=confFilePath;	
-		this.algoConfFilePath=algoConfFilePath;
 		
-		configuration = new Configuration(configFilePath,this);			
-		indexImpl=new IndexImpl(dataDir,logDir,configFilePath);		
-		SlaveIndexerService indexerService=new SlaveIndexerServiceImpl(dataDir, logDir, algoConfFilePath);
+		configuration = new Configuration(configFilePath);			
 		
-		URL url=new URL("http", "0.0.0.0", localPort, SlaveRegisterService.class.getSimpleName());
+		//启动接收文件服务
+		Thread thread=new Thread(new SlaveFileServer(configuration.fileTransferPort, configuration.tempFileDir));
+		thread.start();
+		
+		//发布检索服务
+		URL url=new URL("http", "0.0.0.0", configuration.servicePort, SlaveRegisterService.class.getSimpleName());
+		SlaveIndexerService indexerService=new SlaveIndexerServiceImpl(configuration.dataDir, configuration.tempFileDir, configuration.logDir, configuration.algoConfFilePath);
 		Endpoint.publish(url.toString(), indexerService);		
 		
+		//向master注册
 		registerToMaster(url.toString());
 		
 	}
 	
-	private boolean registerToMaster(String indexServiceURL) {
+	private boolean registerToMaster(String indexServiceURL) throws MalformedURLException {
 		
 
 		URL url;
 		try {
-			url = new URL("http",masterHost,masterPort,SlaveRegisterService.class.getName());
+			url = new URL("http",configuration.masterHost,configuration.masterPort,SlaveRegisterService.class.getName());
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -59,23 +55,20 @@ public class SlaveIndexer {
 		SlaveRegisterService registerService=(SlaveRegisterService) factoryBean.create();
 		
 		
-		registerService.registerSlave(indexServiceURL);
-		
+		registerService.registerSlave(configuration.groupName, configuration.host, configuration.servicePort, configuration.fileTransferPort);
+				
 		return true;
 	}
 	
-	public IndexImpl getInderJNI() {
-		return indexImpl;
-	}
 	
 	public static void main(String[] args) throws IOException, URISyntaxException{
 		if(args.length < 1){
 			System.out.println("args <1");
-			System.out.println("must provide configure file path");
+			System.out.println("must provide configure file");
 		}
 		
-		String configFilePathString=args[0];
+		String configFilePath=args[0];
 		@SuppressWarnings("unused")
-		SlaveIndexer slaveIndexer=new SlaveIndexer(configFilePathString, null);			
+		SlaveIndexer slaveIndexer=new SlaveIndexer(configFilePath);			
 	}
 }

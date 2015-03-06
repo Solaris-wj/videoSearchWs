@@ -7,57 +7,50 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class SlaveIndexerServiceImpl implements SlaveIndexerService {
 
-	IndexJNIimpl indexJni = new IndexJNIimpl();
+	IndexJNI indexJni=null; 
 	String dataDir=null;	
+	String tempFileDir=null;
 	ReadWriteLock readWriteLock = new ReentrantReadWriteLock(); // 写优先锁
 
-	public SlaveIndexerServiceImpl(String dataDir, String logDir, String algoConfPath) throws IOException {
+	public SlaveIndexerServiceImpl(String dataDir, String tempFileDir, String logDir, String algoConfPath) throws IOException {
 		super();		
-		
+		indexJni=new IndexJNI(dataDir, logDir, algoConfPath);
 		this.dataDir=dataDir;
-		if (indexJni.initIndex(dataDir, logDir, algoConfPath) < 0) {
-			throw new IOException("init index failed");
-		}		
+		this.tempFileDir=tempFileDir;
 	}
 	
-	public int addVideo(String fileId){
-		// TODO Auto-generated method stub		
+	@Override
+	public int addVideo(String fileName){
 		
-		String filePath = getFilePath(fileId);
+		//String filePath = getFilePath(fileId);
 		
 		readWriteLock.writeLock().lock();
-		int ret = indexJni.addVideo(filePath);
+		int ret = indexJni.addVideo(fileName);
 		readWriteLock.writeLock().unlock();
 
 		return ret;
 	}
 
+	@Override
 	public String searchVideo(String filePath){
-		// TODO Auto-generated method stub
 		
 		readWriteLock.readLock().lock();
-		String ret = indexJni.searchVideo(filePath);
+		String ret = indexJni.searchVideo(tempFileDir+"/"+filePath);
 		readWriteLock.readLock().unlock();
 		
 		return ret;
 	}
 
-	public int deleteVideo(String fileId){
+	@Override
+	public int deleteVideo(String fileName){
 		// TODO Auto-generated method stub
 		
-		String filePath = getFilePath(fileId);
+		//String filePath = getFilePath(fileId);
 		
 		readWriteLock.writeLock().lock();
-		int ret = indexJni.deleteVideo(filePath);
+		int ret = indexJni.deleteVideo(fileName);
 		readWriteLock.writeLock().unlock();
 		return ret;
-	}
-	
-	private String getFilePath (String fileId) {
-		
-		int ind=fileId.indexOf('/',fileId.indexOf('/')+1);
-	
-		return fileId.substring(ind+1);
 	}
 
 }

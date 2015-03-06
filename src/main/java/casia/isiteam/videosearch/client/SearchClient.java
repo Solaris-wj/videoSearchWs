@@ -1,69 +1,33 @@
 package casia.isiteam.videosearch.client;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.URI;
-import java.rmi.Naming;
 
-import casia.isiteam.videosearch.master.SlaveRegisterService;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import casia.isiteam.videosearch.master.client.MasterIndexerClient;
 
 public class SearchClient {
-	String fdfs_client_config_path = "";
+		
+	String serverHost;
+	int servicePort;
+	int fileTransferPort;
 	
+	MasterIndexerClient masterIndexerClient=null;
 	
-	public SearchClient(String indexHost, int port){
-//		try {
-//			ClientGlobal.init(fdfs_client_config_path);
-//		} catch (IOException | MyException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+	public SearchClient(String serverHost, int servicePort, int fileTransferPort) throws MalformedURLException{
 		
-		URI uri= new URI("rmi",null,indexHost,port,"/SlaveRegisterService",null,null);
-		
-		SlaveRegisterService service=(SlaveRegisterService)Naming.lookup(uri.toString());
-		
+		masterIndexerClient=new MasterIndexerClient(serverHost, servicePort, fileTransferPort);
 
 	}
-	
-	public String uploadToFdfs(String filePath){
-
-		String fileId=null;
-		try {
-			TrackerClient tracker = new TrackerClient();
-			TrackerServer trackerServer = tracker.getConnection();
-			StorageServer storageServer = null;
-			StorageClient1 client = new StorageClient1(trackerServer,
-					storageServer);
-			fileId = client.upload_file1(filePath, null, null);
-		} catch (IOException  | MyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
 		
-		return fileId;
-	}
-	
-	public int addVideo(String fileId) throws IOException{
-		
-		//String fileId = this.uploadToFdfs(filePath);
-		
-		ServerSocket svrSocket=new ServerSocket();
-		InetAddress address = svrSocket.getInetAddress();
-		
-		addVideo
-		
-		return 0;
+	public int addVideo(String fileID) throws IOException{
+		return masterIndexerClient.addVideo(fileID);		
 	}
 
-	public String searchVideo(String fileId){
-		//String 
+	public String searchVideo(String fileName){
+		return masterIndexerClient.searchVideo(fileName);
 	}
 
-	public int deleteVideo(String fileId){
-		
+	public int deleteVideo(String fileID){
+		return masterIndexerClient.delete(fileID);
 	}
 }
