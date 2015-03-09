@@ -11,8 +11,10 @@ import java.net.Socket;
 import java.net.URL;
 
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
+
 import casia.isiteam.videosearch.master.SlaveRegisterService;
 import casia.isiteam.videosearch.slave.SlaveIndexerService;
+import casia.isiteam.videosearch.util.FileSender;
 
 public class SlaveIndexerClient {
 	String groupName;
@@ -44,47 +46,8 @@ public class SlaveIndexerClient {
 	
 	public int upLoadFile(String fileName) throws IOException{
 		
-		int trunkSize=1024*1024;
-		Socket socket=null;
-		FileInputStream ifs=null;
-		try {
-			socket = new Socket();
-			InetSocketAddress address=new InetSocketAddress(host, fileTransferPort);
-			
-			socket.connect(address);
-			
-			File file=new File(fileName);
-			ifs=new FileInputStream(file);
-			
-			OutputStream out=socket.getOutputStream();
-			DataOutputStream dOut=new DataOutputStream(out);
-			//发送文件名
-			dOut.writeInt(fileName.length());
-			
-			out.write(fileName.getBytes());
-			
-			//发送文件
-			int cnt=0;
-			while(cnt < file.length()){
-				
-				byte[] buf=new byte[trunkSize];
-				int ret=ifs.read(buf);				
-				out.write(buf);				
-				cnt+=ret;				
-			}
-			
-			
-			socket.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-
-			return -1;
-		}finally{
-			socket.close();
-			ifs.close();
-		}
-		
+		File file=new File(fileName);		
+		FileSender.sendFile(file, fileName, fileTransferPort);		
 		return 0;		
 	}
 	

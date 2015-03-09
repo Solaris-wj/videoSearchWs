@@ -3,8 +3,11 @@ package casia.isiteam.videosearch.master;
 import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.CopyOnWriteArraySet;
+
 import javax.xml.ws.Endpoint;
+
 import casia.isiteam.videosearch.slave.client.SlaveIndexerClient;
+import casia.isiteam.videosearch.util.FileServer;
 
 /**
  * 
@@ -26,7 +29,7 @@ public class MasterIndexer {
 		
 		slaveIndexer = new CopyOnWriteArraySet<SlaveIndexerClient>();
 		
-		Thread thread=new Thread(new MasterFileServer(configuration.fileTransferPort,configuration.tempFileDir));
+		Thread thread=new Thread(new FileServer(configuration.host, configuration.fileTransferPort,configuration.tempFileDir,false));
 		thread.start();
 		
 		//发布注册服务

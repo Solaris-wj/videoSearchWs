@@ -1,20 +1,14 @@
 package casia.isiteam.videosearch.master.client;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
-import java.net.Socket;
 import java.net.URL;
 
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 
 import casia.isiteam.videosearch.master.MasterIndexService;
+import casia.isiteam.videosearch.util.FileSender;
 
 /**
  * master的客户端代理，此类所有方法均在客户端处运行
@@ -48,69 +42,12 @@ public class MasterIndexerClient {
 	 * @return 返回服务器处的文件名
 	 * @throws IOException
 	 */
-	private String upLoadFile(String fileName) throws IOException{
+	private String upLoadFile(String fileName){
 		
-		int trunkSize=1024*1024;
-		Socket socket=null;
-		FileInputStream ifs=null;
-		OutputStream ofs=null;
-		DataOutputStream dataOutputStream=null;
+		File file=new File(fileName);
 		
-		InputStream in=null;
-		DataInputStream dataInputStream=null;
-		try {
-			socket = new Socket();
-			InetSocketAddress address=new InetSocketAddress(host, fileTransferPort);
-			
-			socket.connect(address);
-			
-			File file=new File(fileName);
-			ifs=new FileInputStream(file);
-			ofs=socket.getOutputStream();	
-			
-			dataOutputStream=new DataOutputStream(ofs);
-			//发送文件名，服务器端用来去后缀
-			dataOutputStream.writeInt(fileName.length());
-			dataOutputStream.write(fileName.getBytes());			
-			
-			dataOutputStream.writeLong(file.length());
-
-			int cnt=0;
-			while(cnt < file.length()){
-				
-				byte[] buf=new byte[trunkSize];
-				int ret=ifs.read(buf);				
-				dataOutputStream.write(buf);				
-				cnt+=ret;				
-			}
-			
-			//接收文件名
-			in=socket.getInputStream();			
-			dataInputStream=new DataInputStream(in);
-			int len=dataInputStream.readInt();	
-			
-			byte[] dst=new byte[len];
-			
-			int readed=0;
-			while(readed<len){
-				in.read(dst, readed, len);
-			}			
-			String nameOnServerString=new String(dst);
-			
-			
-			return nameOnServerString;
-			
-			//socket.close();
-		} catch (IOException e) {
-
-			e.printStackTrace();
-
-			return null;
-		}finally{
-			
-			ifs.close();
-			socket.close();
-		}	
+		return FileSender.sendFile(file, host, fileTransferPort);
+		
 	}
 	public int addVideo(String fileID){
 		return masterIndexService.addVideo(fileID);
@@ -121,13 +58,7 @@ public class MasterIndexerClient {
 	
 	public String searchVideo(String fileName){
 		String nameOnServerString;
-		try {
-			nameOnServerString = upLoadFile(fileName);
-		} catch (IOException e) {
-			e.printStackTrace();
-			
-			return null;
-		}
+		nameOnServerString = upLoadFile(fileName);
 		
 		return masterIndexService.searchVideo(nameOnServerString);
 	}

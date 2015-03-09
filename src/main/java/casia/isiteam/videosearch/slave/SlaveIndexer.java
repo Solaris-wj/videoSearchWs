@@ -10,6 +10,7 @@ import javax.xml.ws.Endpoint;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 
 import casia.isiteam.videosearch.master.SlaveRegisterService;
+import casia.isiteam.videosearch.util.FileServer;
 
 
 public class SlaveIndexer {
@@ -22,7 +23,7 @@ public class SlaveIndexer {
 		configuration = new Configuration(configFilePath);			
 		
 		//启动接收文件服务
-		Thread thread=new Thread(new SlaveFileServer(configuration.fileTransferPort, configuration.tempFileDir));
+		Thread thread=new Thread(new FileServer(configuration.host,configuration.fileTransferPort, configuration.tempFileDir,true));
 		thread.start();
 		
 		//发布检索服务
