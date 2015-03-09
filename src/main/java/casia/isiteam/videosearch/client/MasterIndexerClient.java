@@ -1,4 +1,4 @@
-package casia.isiteam.videosearch.master.client;
+package casia.isiteam.videosearch.client;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,17 +49,37 @@ public class MasterIndexerClient {
 		return FileSender.sendFile(file, host, fileTransferPort);
 		
 	}
+	
+	/**
+	 * 向视频索引中添加视频
+	 * @param fileID  文件的ID，指fastDFS返回的ID，文件必须先上传到FastDFS中
+	 * @return 成功返回0，失败-1
+	 * @throws IOException
+	 */
+	
 	public int addVideo(String fileID){
 		return masterIndexService.addVideo(fileID);
 	}
+	
+
+	/**
+	 * 删除索引中的视频
+	 * @param fileID 文件ID指fastDFS返回的文件ID，此方法不会删除fastdfs中的文件
+	 * @return 成功返回0，失败-1
+	 */
 	public int delete(String fileID) {
 		return masterIndexService.deleteVideo(fileID);		
 	}
 	
+	/**
+	 * 检索视频 
+	 * @param fileName 文件名，指本地的文件
+	 * @return 成功返回检索结果，失败返回 “ERR”
+	 */
 	public String searchVideo(String fileName){
-		String nameOnServerString;
-		nameOnServerString = upLoadFile(fileName);
+		String nameOnServer;
+		nameOnServer = upLoadFile(fileName);
 		
-		return masterIndexService.searchVideo(nameOnServerString);
+		return masterIndexService.searchVideo(nameOnServer);
 	}
 }

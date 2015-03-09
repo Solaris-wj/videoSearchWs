@@ -2,6 +2,7 @@ package casia.isiteam.videosearch.util;
 
 public class Util {
 
+	public static String errCodeString="ERR";
 	/*
 	 * 0-n 显示各层信息，0 显示本方法的信息，1显示调用此方法的地方
 	 */

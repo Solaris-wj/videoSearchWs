@@ -17,6 +17,7 @@ import com.alibaba.fastjson.TypeReference;
 
 import casia.isiteam.videosearch.client.TimePoint;
 import casia.isiteam.videosearch.slave.client.SlaveIndexerClient;
+import casia.isiteam.videosearch.util.Util;
 
 
 public class MasterIndexServiceImpl implements MasterIndexService{	
@@ -83,10 +84,10 @@ public class MasterIndexServiceImpl implements MasterIndexService{
 				text = retFuture.get();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
-				return null;
+				return Util.errCodeString;
 			} catch (ExecutionException e) {
 				e.printStackTrace();
-				return null;
+				return Util.errCodeString;
 			}
 			if(text==null){
 				continue;

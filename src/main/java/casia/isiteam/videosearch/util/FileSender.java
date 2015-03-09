@@ -65,7 +65,7 @@ public class FileSender {
 class FileSendHandler extends SimpleChannelInboundHandler<String>{
 
 	File file;
-	String fileNameOnServer;
+	String fileNameOnServer=null;
 	public FileSendHandler(File file){
 		this.file=file;
 	}
