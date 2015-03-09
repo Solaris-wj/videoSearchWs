@@ -12,14 +12,15 @@ import org.csource.fastdfs.TrackerServer;
 public class FastDFSClient {
 
 	TrackerClient trackerClient;
-	
+	TrackerServer trackerServer;
 	public FastDFSClient(String conf_filename) {
 		try {
 			ClientGlobal.init(conf_filename);
 
 
 			trackerClient = new TrackerClient();
-
+			trackerServer=trackerClient.getConnection();
+			
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -58,9 +59,8 @@ public class FastDFSClient {
 	}
 	
 	private StorageClient1 getDownloadStorage(String fileId) throws IOException{
-		TrackerServer trackerServer=null;
-		try {
-			trackerServer=trackerClient.getConnection();
+	
+		try {			
 			StorageServer storageServer=trackerClient.getFetchStorage1(trackerServer, fileId);
 			StorageClient1 client = new StorageClient1(trackerServer, storageServer);
 			
@@ -70,21 +70,13 @@ public class FastDFSClient {
 			e.printStackTrace();
 			
 			return null;
-		}finally{
-			trackerServer.close();
 		}
 		
 	}
 	private StorageClient1 getUploadStorage() throws IOException{
-		
-		TrackerServer trackerServer=null;
-		try {
-			//trackerServer = trackerClient.getConnection();
-			trackerServer=null;
-			StorageServer storageServer = null;
+		try {		
 			StorageClient1 client = new StorageClient1(trackerServer,
-					storageServer);
-
+					null);
 			return client;
 		}finally{
 			//trackerServer.close();
