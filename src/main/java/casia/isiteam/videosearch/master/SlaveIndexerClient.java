@@ -1,4 +1,4 @@
-package casia.isiteam.videosearch.slave.client;
+package casia.isiteam.videosearch.master;
 
 import java.io.DataOutputStream;
 import java.io.File;

@@ -6,7 +6,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.xml.ws.Endpoint;
 
-import casia.isiteam.videosearch.slave.client.SlaveIndexerClient;
 import casia.isiteam.videosearch.util.FileServer;
 
 /**

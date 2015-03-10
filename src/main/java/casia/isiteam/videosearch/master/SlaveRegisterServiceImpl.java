@@ -2,8 +2,6 @@ package casia.isiteam.videosearch.master;
 
 import java.net.MalformedURLException;
 
-import casia.isiteam.videosearch.slave.client.SlaveIndexerClient;
-
 /**
  * slave indexer 接口实现
  * 

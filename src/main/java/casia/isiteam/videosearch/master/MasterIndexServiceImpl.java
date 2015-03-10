@@ -16,7 +16,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 
 import casia.isiteam.videosearch.client.TimePoint;
-import casia.isiteam.videosearch.slave.client.SlaveIndexerClient;
 import casia.isiteam.videosearch.util.Util;
 
 
