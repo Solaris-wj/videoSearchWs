@@ -1,7 +1,6 @@
 package casia.isiteam.videosearch.master;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -9,7 +8,7 @@ import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 
 import casia.isiteam.videosearch.master.SlaveRegisterService;
 import casia.isiteam.videosearch.slave.SlaveIndexerService;
-import casia.isiteam.videosearch.util.FileSender;
+import casia.isiteam.videosearch.util.filetransfer.FileSender;
 
 public class SlaveIndexerClient {
 	String groupName;
@@ -58,14 +57,7 @@ public class SlaveIndexerClient {
 
 	public String searchVideo(String fileName) throws Exception {
 
-		try {
-			upLoadFile(fileName);
-		} catch (IOException e) {
-
-			e.printStackTrace();
-
-			return null;
-		}
+		upLoadFile(fileName);
 		return slaveIndexerService.searchVideo(fileName);
 	}
 }

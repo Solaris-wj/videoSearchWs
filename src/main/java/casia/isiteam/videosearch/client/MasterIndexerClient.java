@@ -8,7 +8,7 @@ import java.net.URL;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 
 import casia.isiteam.videosearch.master.MasterIndexService;
-import casia.isiteam.videosearch.util.FileSender;
+import casia.isiteam.videosearch.util.filetransfer.FileSender;
 
 /**
  * master的客户端代理，此类所有方法均在客户端处运行
@@ -91,8 +91,7 @@ public class MasterIndexerClient {
 	 */
 	public String searchVideo(String fileName) throws Exception{
 		String nameOnServer;
-		nameOnServer = upLoadFile(fileName);
-		
+		nameOnServer = upLoadFile(fileName);		
 		return masterIndexService.searchVideo(nameOnServer);
 	}
 }
