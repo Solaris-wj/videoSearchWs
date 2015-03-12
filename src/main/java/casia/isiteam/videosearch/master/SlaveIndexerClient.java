@@ -38,7 +38,7 @@ public class SlaveIndexerClient {
 	public int upLoadFile(String fileName) throws Exception {
 
 		File file = new File(fileName);
-		FileSender.sendFile(file, fileName, fileTransferPort);
+		FileSender.sendFile(file, host, fileTransferPort);
 		return 0;
 	}
 

@@ -1,5 +1,8 @@
 package casia.isiteam.videosearch.util.filetransfer;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import casia.isiteam.videosearch.util.Util;
@@ -17,12 +20,14 @@ import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 
-public class FileReceiver extends Thread{
+public class FileReceiver implements Callable<Void> {
 	String host;
 	int fileTransferPort;
 	String fileDir=null;
 	boolean useFileNameOnClient=false;
 
+	ExecutorService selfExecutor=Executors.newSingleThreadExecutor();
+	
 	AtomicInteger fileNum=new AtomicInteger(2);
 	
 	public FileReceiver(String host, int fileTransferPort, String fileDir ,boolean useFileNameOnClient){
@@ -32,7 +37,8 @@ public class FileReceiver extends Thread{
 		this.useFileNameOnClient=useFileNameOnClient;
 	}
 	@Override
-	public void run(){
+	public Void call() throws Exception{
+		
 		EventLoopGroup group = new NioEventLoopGroup();
 		EventLoopGroup workGroup = new NioEventLoopGroup();
 		
@@ -73,13 +79,17 @@ public class FileReceiver extends Thread{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			Util.printContextInfo(null);
+			throw e;
 		}
 		finally{
 			group.shutdownGracefully();
 			workGroup.shutdownGracefully();
 		}
+		return null;		
 	}
-	
+	public void start(){
+		selfExecutor.submit(this);
+	}
 	public String getNextFileName(String fileNameOnClient) {
 
 		if(this.useFileNameOnClient){

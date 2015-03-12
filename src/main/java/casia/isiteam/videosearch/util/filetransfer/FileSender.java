@@ -4,8 +4,11 @@ import java.io.Closeable;
 import java.io.File;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import casia.isiteam.videosearch.util.Util;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -29,10 +32,12 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.FutureListener;
 import io.netty.util.concurrent.Promise;
 
-public class FileSender extends Thread implements Closeable {
+public class FileSender implements Callable<Void>, Closeable {
 	String host;
 	int fileTransferPort;
 	Channel ch = null;
+	ExecutorService selfExecutor=Executors.newSingleThreadExecutor();
+	
 	EventExecutor executor = new DefaultEventExecutor();
 	AtomicBoolean isShutDown = new AtomicBoolean(false);
 
@@ -59,6 +64,7 @@ public class FileSender extends Thread implements Closeable {
 	public void forceClose() {
 		isShutDown.set(true);
 		ch.close();
+		selfExecutor.shutdown();
 	}
 
 	public Future<String> sendFile(final File file) throws Exception {
@@ -89,9 +95,35 @@ public class FileSender extends Thread implements Closeable {
 		return promiseQueue;
 	}
 
-	@Override
-	public void run() {
+	/**
+	 * 直接建立连接发送文件，完成后关闭。阻塞等待！
+	 * 
+	 * @param file
+	 * @param host
+	 * @param fileTransferPort
+	 * @return 成功0 失败-1
+	 * @throws Exception
+	 * @throws
+	 */
+	public static String sendFile(final File file, String host,
+			int fileTransferPort) throws Exception {
+		FileSender fileSender = null;
+		try {
+			fileSender = new FileSender(host, fileTransferPort);
+			fileSender.start();
+			synchronized (fileSender) {
+				fileSender.wait();
+			}
+			Future<String> ret = fileSender.sendFile(file);
 
+			return ret.get();
+		} finally {
+			fileSender.close();
+		}
+	}
+
+	@Override
+	public Void call() throws Exception {
 		EventLoopGroup group = new NioEventLoopGroup();
 
 		final FileSender fileSender = this;
@@ -130,42 +162,25 @@ public class FileSender extends Thread implements Closeable {
 			this.ch = f.channel();
 			f.channel().closeFuture().sync();
 
-		} catch (InterruptedException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			Util.printContextInfo(null);
+			throw e;
+
 		} finally {
 			group.shutdownGracefully();
 			executor.shutdownGracefully();
 		}
+		return null;
 	}
 
 	/**
-	 * 直接建立连接发送文件，完成后关闭。阻塞等待！
-	 * 
-	 * @param file
-	 * @param host
-	 * @param fileTransferPort
-	 * @return 成功0 失败-1
-	 * @throws Exception
-	 * @throws
+	 * 在一个新线程启动自身
 	 */
-	public static String sendFile(final File file, String host,
-			int fileTransferPort) throws Exception {
-		FileSender fileSender=null;
-		try {
-			fileSender = new FileSender(host, fileTransferPort);
-			fileSender.start();
-			synchronized (fileSender) {
-				fileSender.wait();
-			}
-			Future<String> ret = fileSender.sendFile(file);
-
-			return ret.get();
-		}finally{
-			fileSender.close();
-		}
+	public void start(){
+		selfExecutor.submit(this);
 	}
-
 	public static void main(String[] args) throws Exception {
 
 		String ret0 = FileSender.sendFile(new File("C:/t.txt"), "127.0.0.1",
@@ -173,8 +188,6 @@ public class FileSender extends Thread implements Closeable {
 		System.out.println(ret0);
 
 		FileSender fileSender = new FileSender("127.0.0.1", 9001);
-
-		fileSender.start();
 
 		synchronized (fileSender) {
 			fileSender.wait();
@@ -227,4 +240,5 @@ public class FileSender extends Thread implements Closeable {
 		// }
 
 	}
+
 }
