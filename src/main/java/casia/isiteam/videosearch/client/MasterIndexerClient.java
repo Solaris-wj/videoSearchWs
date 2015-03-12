@@ -35,7 +35,7 @@ public class MasterIndexerClient {
 		this.servicePort=servicePort;
 		this.fileTransferPort=fileTransferPort;
 		
-		URL url=new URL("http", host, servicePort, MasterIndexService.class.getSimpleName());
+		URL url=new URL("http", host, servicePort, "/"+MasterIndexService.class.getSimpleName());
 		
 		JaxWsProxyFactoryBean factory = new JaxWsProxyFactoryBean();
 		// factory.

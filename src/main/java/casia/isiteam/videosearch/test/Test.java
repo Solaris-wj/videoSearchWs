@@ -2,8 +2,6 @@ package casia.isiteam.videosearch.test;
 
 import java.io.IOException;
 
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
-
 import casia.isiteam.fastdfs.client.FastDFSClient;
 import casia.isiteam.videosearch.client.MasterIndexerClient;
 
@@ -28,7 +26,7 @@ public class Test {
 		String localFileName="C:/Users/dell/Downloads/ChunkedWriteHandlerTest.java";
 		
 		String fileID=fastDFSClient.upLoadFile(localFileName);
-		
+		System.out.println(fileID);
 		System.out.println(masterIndexerClient.addVideo(fileID));
 		System.out.println(masterIndexerClient.delete(fileID));
 		System.out.println(masterIndexerClient.searchVideo(localFileName));
