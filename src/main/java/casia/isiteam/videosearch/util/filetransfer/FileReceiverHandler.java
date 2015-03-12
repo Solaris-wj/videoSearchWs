@@ -8,8 +8,12 @@ import java.io.OutputStream;
 import casia.isiteam.videosearch.util.Util;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.FutureListener;
 
 public class FileReceiverHandler extends ChannelHandlerAdapter {
 
@@ -63,10 +67,20 @@ public class FileReceiverHandler extends ChannelHandlerAdapter {
 			bout.close();
 			out.close();
 			ctx.writeAndFlush(Unpooled.copiedBuffer(file.getName().getBytes()));
-			file = null;
+			file = null;		
 			
-			
-			ctx.close();
+			System.out.println("received one file");
+			//这里接收完一个文件就关闭，但是发送两个文件是没问题的。！！
+			ctx.close().addListener(new ChannelFutureListener() {
+
+				@Override
+				public void operationComplete(ChannelFuture future)
+						throws Exception {
+					// TODO Auto-generated method stub
+					System.out.println("close");
+				}
+
+			});
 		}
 
 	}

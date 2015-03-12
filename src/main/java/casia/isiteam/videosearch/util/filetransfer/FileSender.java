@@ -163,7 +163,8 @@ public class FileSender implements Callable<Void>, Closeable {
 
 			this.ch = f.channel();
 			f.channel().closeFuture().sync();
-
+			
+			//对端关闭链接，自己关不关？
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -202,30 +203,24 @@ public class FileSender implements Callable<Void>, Closeable {
 		final File file = new File("C:/t.txt");
 
 		Future<String> ret = finalFileSender.sendFile(file);
-
+		
 		ret.addListener(new FutureListener<String>() {
 
 			@Override
 			public void operationComplete(Future<String> future)
 					throws Exception {
-				System.out.println(future.get());
+				System.out.println(finalFileSender.ch.isOpen());
+				
 			}
-
 		});
+		
+		
+		Future<String> ret2 = finalFileSender.sendFile(file);
 
-		ret.addListener(new FutureListener<String>() {
-
-			@Override
-			public void operationComplete(Future<String> future)
-					throws Exception {
-				System.out.println(future.get());
-			}
-
-		});
-
+		
 		fileSender.close();
 		ret.await().sync();
-
+		System.out.println("end of main");
 		// int num = 1;
 		// for (int i = 0; i != num; ++i) {
 		//
