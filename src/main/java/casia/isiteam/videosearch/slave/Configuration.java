@@ -21,12 +21,9 @@ class Configuration {
 	String dataDir=null;
 	String logDir=null;
 
-	String algoConfFilePath=null;
+	//String algoConfFilePath=null;	
 	
-
-	
-	
-	private Properties properties;
+	private Properties properties=new Properties();
 	public Configuration(String configFilePath) throws IOException {
 		InputStream in = new FileInputStream(configFilePath);
 		properties.load(in);
@@ -43,9 +40,9 @@ class Configuration {
 
 		try {
 			masterPort = Integer.parseInt(properties
-					.getProperty("registerPort"));
+					.getProperty("masterPort"));
 		} catch (NumberFormatException e) {
-			throw new IOException("registerPort can not be null");
+			throw new IOException("masterPort can not be null");
 			//masterPort = 800100;
 		}
 
@@ -76,8 +73,10 @@ class Configuration {
 		if (tempFileDir == null || tempFileDir.length() == 0) {
 			throw new IOException("tempFileDir can not be null!");
 		}
-		if (new File(tempFileDir).exists() == false) {
-			throw new IOException("temporary file directory doesn't exists");
+		File tempFileDirFile=new File(tempFileDir);
+		if (tempFileDirFile.exists() == false) {
+			System.err.println("temporary file directory doesn't exists and mkdir called");
+			tempFileDirFile.mkdirs();
 		}
 		
 		
@@ -85,8 +84,10 @@ class Configuration {
 		if (dataDir == null || dataDir.length() == 0) {
 			throw new IOException("dataDir can not be null!");
 		}
-		if (new File(dataDir).exists() == false) {
-			throw new IOException("dataDir file directory doesn't exists!");
+		File dataDirFile=new File(dataDir);
+		if (dataDirFile.exists() == false) {
+			System.err.println("dataDir file directory doesn't exists! and mkdir called");
+			dataDirFile.mkdirs();
 		}
 		
 		
@@ -94,22 +95,21 @@ class Configuration {
 		if (logDir == null || logDir.length() == 0) {
 			throw new IOException("logDir can not be null!");
 		}
-		if (new File(logDir).exists() == false) {
-			throw new IOException("logDir file directory doesn't exists!");
+		File logDirFile=new File(logDir);
+		if (logDirFile.exists() == false) {
+			System.err.println("logDir file directory doesn't exists! and mkdir called");
+			logDirFile.mkdirs();
 		}
 		
 		
-		algoConfFilePath=properties.getProperty("algoConfFilePath");
-		if(algoConfFilePath==null || algoConfFilePath.length()==0){
-			throw new IOException("algoConfFilePath can not be empty!");
-		}
-		if(new File(algoConfFilePath).exists()==false){
-			throw new IOException("algoConfFilePath file directory doesn't exists");
-		}		
+//		algoConfFilePath=properties.getProperty("algoConfFilePath");
+//		if(algoConfFilePath==null || algoConfFilePath.length()==0){
+//			throw new IOException("algoConfFilePath can not be empty!");
+//		}
+//		if(new File(algoConfFilePath).exists()==false){
+//			throw new IOException("algoConfFilePath file directory doesn't exists");
+//		}		
 		
-
-
-
 	}
 
 }

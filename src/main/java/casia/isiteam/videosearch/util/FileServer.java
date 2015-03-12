@@ -35,6 +35,7 @@ public class FileServer implements Runnable {
 	ExecutorService executor;
 
 	public FileServer(String host, int port, String tempFileDir, boolean useFileNameOnClient) {
+		this.host=host;
 		this.fileTransferPort = port;
 		this.tempFileDir = tempFileDir;
 		this.useFileNameOnClient=useFileNameOnClient;

@@ -35,7 +35,8 @@ public class SlaveIndexerServiceImpl implements SlaveIndexerService {
 	public String searchVideo(String filePath){
 		
 		readWriteLock.readLock().lock();
-		String ret = indexJni.searchVideo(tempFileDir+"/"+filePath);
+		String ret="hello";
+		//String ret = indexJni.searchVideo(tempFileDir+"/"+filePath);
 		readWriteLock.readLock().unlock();
 		
 		return ret;

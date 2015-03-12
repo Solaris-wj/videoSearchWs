@@ -17,7 +17,6 @@ public class FastDFSClient {
 		try {
 			ClientGlobal.init(conf_filename);
 
-
 			trackerClient = new TrackerClient();
 			trackerServer=trackerClient.getConnection();
 			

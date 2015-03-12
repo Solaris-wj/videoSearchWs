@@ -20,7 +20,7 @@ import java.io.File;
 
 public class FileSender {
 	
-	public static String sendFile(final File file,String host, int fileTransferPort){
+	public static String sendFile(final File file,String host, int fileTransferPort) throws Exception{
 		
 		EventLoopGroup group=new NioEventLoopGroup();
 		
@@ -54,8 +54,7 @@ public class FileSender {
 		} catch (Exception e) {
 
 			e.printStackTrace();
-
-			return null;
+			throw e;
 		}finally{
 			group.shutdownGracefully();
 		}		

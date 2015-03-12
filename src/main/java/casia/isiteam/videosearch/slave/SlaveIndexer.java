@@ -17,7 +17,7 @@ public class SlaveIndexer {
 	
 	String configFilePath=null;
 	Configuration configuration=null;
-	public SlaveIndexer(String confFilePath) throws IOException, URISyntaxException {
+	public SlaveIndexer(String confFilePath, String algoConfFilePath) throws IOException, URISyntaxException {
 		this.configFilePath=confFilePath;	
 		
 		configuration = new Configuration(configFilePath);			
@@ -27,8 +27,8 @@ public class SlaveIndexer {
 		thread.start();
 		
 		//发布检索服务
-		URL url=new URL("http", "0.0.0.0", configuration.servicePort, SlaveRegisterService.class.getSimpleName());
-		SlaveIndexerService indexerService=new SlaveIndexerServiceImpl(configuration.dataDir, configuration.tempFileDir, configuration.logDir, configuration.algoConfFilePath);
+		URL url=new URL("http", "0.0.0.0", configuration.servicePort, "/"+SlaveRegisterService.class.getSimpleName());
+		SlaveIndexerService indexerService=new SlaveIndexerServiceImpl(configuration.dataDir, configuration.tempFileDir, configuration.logDir, algoConfFilePath);
 		Endpoint.publish(url.toString(), indexerService);		
 		
 		//向master注册
@@ -41,7 +41,7 @@ public class SlaveIndexer {
 
 		URL url;
 		try {
-			url = new URL("http",configuration.masterHost,configuration.masterPort,SlaveRegisterService.class.getName());
+			url = new URL("http",configuration.masterHost,configuration.masterPort,"/"+SlaveRegisterService.class.getSimpleName());
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -53,6 +53,7 @@ public class SlaveIndexer {
 		
 		factoryBean.setServiceClass(SlaveRegisterService.class);
 		factoryBean.setAddress(url.toString());
+		System.out.println(url.toString());
 		SlaveRegisterService registerService=(SlaveRegisterService) factoryBean.create();
 		
 		
@@ -63,13 +64,15 @@ public class SlaveIndexer {
 	
 	
 	public static void main(String[] args) throws IOException, URISyntaxException{
-		if(args.length < 1){
-			System.out.println("args <1");
-			System.out.println("must provide configure file");
+		if(args.length < 2){
+			System.out.println("args <2");
+			System.out.println("must provide slave indexer and algorithm configuration file");
 		}
 		
 		String configFilePath=args[0];
+		String algoConfFilePath=args[1];
+		
 		@SuppressWarnings("unused")
-		SlaveIndexer slaveIndexer=new SlaveIndexer(configFilePath);			
+		SlaveIndexer slaveIndexer=new SlaveIndexer(configFilePath,algoConfFilePath);			
 	}
 }

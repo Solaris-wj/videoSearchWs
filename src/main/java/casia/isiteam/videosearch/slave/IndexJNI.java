@@ -7,9 +7,14 @@ public class IndexJNI {
 
 	public IndexJNI(String dataDir, String logDir, String algoConfPath)
 			throws IOException {
-		if (this.initIndex(dataDir, logDir, algoConfPath) < 0) {
-			throw new IOException("init index failed");
-		}
+//		try {
+//			if (this.initIndex(dataDir, logDir, algoConfPath) < 0) {
+//				throw new IOException("init index failed");
+//			}
+//		} catch (Exception e) {
+//			// TODO: handle exception
+//		}
+
 	}
 	public native int initIndex(String dataDir, String logDir,
 			String algoConfPath);

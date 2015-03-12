@@ -32,13 +32,13 @@ public class MasterIndexer {
 		thread.start();
 		
 		//发布注册服务
-		URL url=new URL("http", configuration.host, configuration.servicePort, SlaveRegisterService.class.getSimpleName());
+		URL url=new URL("http", configuration.host, configuration.servicePort, "/"+SlaveRegisterService.class.getSimpleName());
 		slaveRegisterService = new SlaveRegisterServiceImpl(this);
 		Endpoint.publish(url.toString(), slaveRegisterService);
 		
 		
 		//对外发布检索服务
-		URL urlService=new URL("http",configuration.host,configuration.servicePort,MasterIndexService.class.getSimpleName());
+		URL urlService=new URL("http",configuration.host,configuration.servicePort,"/"+MasterIndexService.class.getSimpleName());
 		masterIndexService = new MasterIndexServiceImpl(this);		
 		Endpoint.publish(urlService.toString(), masterIndexService);
 	}
