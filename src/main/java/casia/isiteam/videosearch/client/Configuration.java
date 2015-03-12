@@ -12,16 +12,16 @@ public class Configuration {
 	int fileTransferPort;
 		
 	
-	private Properties properties;
+	private Properties properties=new Properties();
 	public Configuration(String configFilePath) throws IOException {
 		InputStream in = new FileInputStream(configFilePath);
 		properties.load(in);
 
 
-		host = properties.getProperty("localhost");
+		host = properties.getProperty("host");
 		if (host == null || host.length() == 0) {
 			host = "0.0.0.0";
-			System.err.println("default localhost is \"0.0.0.0\"");
+			System.err.println("default host is \"0.0.0.0\"");
 		}
 
 		

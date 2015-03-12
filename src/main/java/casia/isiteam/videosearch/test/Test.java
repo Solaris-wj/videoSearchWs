@@ -12,7 +12,7 @@ public class Test {
 	public static void main(String[] args) throws Exception{
 		
 		if(args.length<2){
-			System.out.println("args[0]=fastDFS_conf, args[1]=videosearch_conf");
+			System.out.println("args[0]=fdfs_client.conf, args[1]=indexer_client.conf");
 			return;
 		}
 		

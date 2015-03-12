@@ -53,7 +53,7 @@ public class SlaveIndexer {
 		
 		factoryBean.setServiceClass(SlaveRegisterService.class);
 		factoryBean.setAddress(url.toString());
-		System.out.println(url.toString());
+		
 		SlaveRegisterService registerService=(SlaveRegisterService) factoryBean.create();
 		
 		
