@@ -23,7 +23,7 @@ public class Test {
 			return;
 		}
 		
-		String localFileName="C:/Users/dell/Downloads/ChunkedWriteHandlerTest.java";
+		String localFileName="C:/t.txt";
 		
 		String fileID=fastDFSClient.upLoadFile(localFileName);
 		System.out.println(fileID);

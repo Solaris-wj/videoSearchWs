@@ -19,6 +19,8 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.stream.ChunkedFile;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.concurrent.DefaultEventExecutor;
@@ -104,7 +106,7 @@ public class FileSender extends Thread implements Closeable {
 					ChannelPipeline p = ch.pipeline();
 
 					// decoder
-					// p.addLast(new LoggingHandler(LogLevel.INFO));
+					p.addLast(new LoggingHandler(LogLevel.INFO));
 					p.addLast(new LengthFieldBasedFrameDecoder(
 							Integer.MAX_VALUE, 0, Integer.BYTES, 0,
 							Integer.BYTES));
