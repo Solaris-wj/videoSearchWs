@@ -62,7 +62,8 @@ public class MasterIndexServiceImpl implements MasterIndexService {
 	@Override
 	public String searchVideo(String fileName) throws Exception{
 
-		final String l_fileNameString = fileName;
+		//将文件名转换为本地全路径文件名
+		final String l_fileNameString = masterIndexer.configuration.tempFileDir + "/"+ fileName;
 		ExecutorService executor = Executors.newCachedThreadPool();
 
 		ArrayList<Future<String>> retsArrayList = new ArrayList<Future<String>>();
