@@ -22,7 +22,6 @@ public class FastDFSClientTest {
 
 	}
 	
-	
 	public void testUpLoadFile() throws IOException, MyException {
 		
 
@@ -34,10 +33,7 @@ public class FastDFSClientTest {
 		
 		System.out.println(remoteFileName);
 		
-	}
-
-
-	
+	}	
 	
 	public void testDelete_file1() throws IOException, MyException {
 		System.out.println(this.remoteFileName);

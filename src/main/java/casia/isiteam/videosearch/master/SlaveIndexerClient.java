@@ -22,8 +22,8 @@ public class SlaveIndexerClient {
 	public SlaveIndexerClient(String groupName, String host, int servicePort,
 			int fileTransferPort) throws MalformedURLException {
 
-		URL url = new URL("http", host, servicePort,
-				SlaveRegisterService.class.getSimpleName());
+		URL url = new URL("http", host, servicePort, "/"
+				+ SlaveRegisterService.class.getSimpleName());
 
 		JaxWsProxyFactoryBean factory = new JaxWsProxyFactoryBean();
 		// factory.
