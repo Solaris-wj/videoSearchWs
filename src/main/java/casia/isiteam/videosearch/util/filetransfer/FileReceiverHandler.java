@@ -30,7 +30,6 @@ public class FileReceiverHandler extends ChannelHandlerAdapter {
 
 		ByteBuf buf = (ByteBuf) msg;
 
-		String nameOnServer=null;
 		
 		if (fileInfo == null) {
 			int fileNameLength = buf.readInt();
@@ -40,11 +39,12 @@ public class FileReceiverHandler extends ChannelHandlerAdapter {
 			buf.readBytes(dst);
 			String nameOnClient = new String(dst);
 			long fileLength = buf.readLong();
-			fileInfo = new FileInfo(nameOnClient, fileLength);
+			
 
-			nameOnServer = fileReceiver.getNextFileName(nameOnClient);
-			out = new FileOutputStream(new File(fileReceiver.getFileDir(),
+			String nameOnServer = fileReceiver.getNextFileName(nameOnClient);
+			fileInfo=new FileInfo(new File(fileReceiver.getFileDir(),
 					nameOnServer));
+			out = new FileOutputStream(fileInfo.getFile());
 			bout = new BufferedOutputStream(out);
 
 			buf.resetReaderIndex();
@@ -64,7 +64,7 @@ public class FileReceiverHandler extends ChannelHandlerAdapter {
 			out.close();
 			fileInfo = null;
 
-			ctx.writeAndFlush(Unpooled.copiedBuffer(nameOnServer.getBytes()));
+			ctx.writeAndFlush(Unpooled.copiedBuffer(fileInfo.getFileName().getBytes()));
 			ctx.close();
 		}
 
