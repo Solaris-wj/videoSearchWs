@@ -59,20 +59,20 @@ public class FileSender extends Thread implements Closeable {
 		ch.close();
 	}
 
-	public Future<String> sendFile(final FileInfo fileInfo) throws Exception {
+	public Future<String> sendFile(final File file) throws Exception {
 		// 如果关闭了就不能再发送
 		if (isShutDown.get()) {
 			throw new Exception("file send has been shut down");
 		}
 		executor.submit(new Callable<String>() {
 			public String call() throws Exception {
-				byte[] b = fileInfo.getFileName().getBytes();
+				byte[] b = file.getName().getBytes();
 				ByteBuf buf = ch.alloc().buffer();
 				buf.writeInt(b.length);
-				buf.writeBytes(fileInfo.getFileName().getBytes());
-				buf.writeLong(fileInfo.getFileLength());
+				buf.writeBytes(b);
+				buf.writeLong(file.length());
 				ch.writeAndFlush(buf);
-				ch.writeAndFlush(new ChunkedFile(fileInfo.getFile()));
+				ch.writeAndFlush(new ChunkedFile(file));
 				return null;
 			}
 		});
@@ -156,7 +156,7 @@ public class FileSender extends Thread implements Closeable {
 			synchronized (fileSender) {
 				fileSender.wait();
 			}
-			Future<String> ret = fileSender.sendFile(new FileInfo(file));
+			Future<String> ret = fileSender.sendFile(file);
 
 			return ret.get();
 		}finally{
@@ -181,7 +181,7 @@ public class FileSender extends Thread implements Closeable {
 		final FileSender finalFileSender = fileSender;
 		final File file = new File("C:/t.txt");
 
-		Future<String> ret = finalFileSender.sendFile(new FileInfo(file));
+		Future<String> ret = finalFileSender.sendFile(file);
 
 		ret.addListener(new FutureListener<String>() {
 

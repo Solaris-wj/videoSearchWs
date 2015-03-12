@@ -13,7 +13,8 @@ import io.netty.channel.ChannelHandlerContext;
 
 public class FileReceiverHandler extends ChannelHandlerAdapter {
 
-	FileInfo fileInfo = null;
+	File file = null;
+	long fileLength=0;
 	FileReceiver fileReceiver = null;
 	OutputStream out = null;
 	BufferedOutputStream bout = null;
@@ -31,20 +32,18 @@ public class FileReceiverHandler extends ChannelHandlerAdapter {
 		ByteBuf buf = (ByteBuf) msg;
 
 		
-		if (fileInfo == null) {
+		if (file == null) {
 			int fileNameLength = buf.readInt();
 
 			byte[] dst = new byte[fileNameLength];
 
 			buf.readBytes(dst);
 			String nameOnClient = new String(dst);
-			long fileLength = buf.readLong();
-			
+			fileLength = buf.readLong();			
 
 			String nameOnServer = fileReceiver.getNextFileName(nameOnClient);
-			fileInfo=new FileInfo(new File(fileReceiver.getFileDir(),
-					nameOnServer));
-			out = new FileOutputStream(fileInfo.getFile());
+			file=new File(fileReceiver.getFileDir(), nameOnServer);
+			out = new FileOutputStream(file);
 			bout = new BufferedOutputStream(out);
 
 			buf.resetReaderIndex();
@@ -58,13 +57,15 @@ public class FileReceiverHandler extends ChannelHandlerAdapter {
 		buf.readBytes(b);
 		bout.write(b);
 
-		if (readedSize >= fileInfo.getFileLength()) {
+		if (readedSize >= fileLength) {
 			readedSize = 0;
+			fileLength=0;
 			bout.close();
 			out.close();
-			fileInfo = null;
-
-			ctx.writeAndFlush(Unpooled.copiedBuffer(fileInfo.getFileName().getBytes()));
+			ctx.writeAndFlush(Unpooled.copiedBuffer(file.getName().getBytes()));
+			file = null;
+			
+			
 			ctx.close();
 		}
 
