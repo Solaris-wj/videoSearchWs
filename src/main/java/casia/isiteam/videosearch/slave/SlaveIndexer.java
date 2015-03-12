@@ -28,7 +28,7 @@ public class SlaveIndexer {
 		
 		//发布检索服务
 		URL url=new URL("http", "0.0.0.0", configuration.servicePort, "/"+SlaveRegisterService.class.getSimpleName());
-		SlaveIndexerService indexerService=new SlaveIndexerServiceImpl(configuration.dataDir, configuration.tempFileDir, configuration.logDir, algoConfFilePath);
+		SlaveIndexerService indexerService=new SlaveIndexerServiceImpl(configuration.vDisk, configuration.dataDir, configuration.tempFileDir, configuration.logDir, algoConfFilePath);
 		Endpoint.publish(url.toString(), indexerService);		
 		
 		//向master注册

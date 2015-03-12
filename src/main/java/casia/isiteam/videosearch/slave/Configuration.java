@@ -21,6 +21,9 @@ class Configuration {
 	String dataDir=null;
 	String logDir=null;
 
+	//fastDFS 虚拟磁盘路径
+	String vDisk=null;
+	
 	//String algoConfFilePath=null;	
 	
 	private Properties properties=new Properties();
@@ -46,10 +49,10 @@ class Configuration {
 			//masterPort = 800100;
 		}
 
-		host = properties.getProperty("localhost");
+		host = properties.getProperty("host");
 		if (host == null || host.length() == 0) {
 			host = "0.0.0.0";
-			System.err.println("default localhost is \"0.0.0.0\"");
+			System.err.println("default host is \"0.0.0.0\"");
 		}
 
 		
@@ -75,7 +78,7 @@ class Configuration {
 		}
 		File tempFileDirFile=new File(tempFileDir);
 		if (tempFileDirFile.exists() == false) {
-			System.err.println("temporary file directory doesn't exists and mkdir called");
+			System.err.println("tempFileDir(temporary file) directory doesn't exists and mkdir called");
 			tempFileDirFile.mkdirs();
 		}
 		
@@ -102,13 +105,10 @@ class Configuration {
 		}
 		
 		
-//		algoConfFilePath=properties.getProperty("algoConfFilePath");
-//		if(algoConfFilePath==null || algoConfFilePath.length()==0){
-//			throw new IOException("algoConfFilePath can not be empty!");
-//		}
-//		if(new File(algoConfFilePath).exists()==false){
-//			throw new IOException("algoConfFilePath file directory doesn't exists");
-//		}		
+		vDisk=properties.getProperty("vDisk");
+		if(vDisk==null || vDisk.length()==0){
+			throw new IOException("vDisk can not be empty!");
+		}
 		
 	}
 
