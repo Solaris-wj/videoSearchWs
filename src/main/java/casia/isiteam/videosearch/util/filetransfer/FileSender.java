@@ -36,8 +36,8 @@ public class FileSender implements Callable<Void>, Closeable {
 	String host;
 	int fileTransferPort;
 	Channel ch = null;
-	ExecutorService selfExecutor=Executors.newSingleThreadExecutor();
-	
+	ExecutorService selfExecutor = Executors.newSingleThreadExecutor();
+
 	EventExecutor executor = new DefaultEventExecutor();
 	AtomicBoolean isShutDown = new AtomicBoolean(false);
 
@@ -59,12 +59,14 @@ public class FileSender implements Callable<Void>, Closeable {
 	public void close() {
 		isShutDown.set(true);
 		// 等待所有队列中的promise收到回复后，由handler调用forceclose关闭
+		System.out.println("CLose");
 	}
 
 	public void forceClose() {
 		isShutDown.set(true);
 		ch.close();
 		selfExecutor.shutdown();
+		System.out.println("forceCLose");
 	}
 
 	public Future<String> sendFile(final File file) throws Exception {
@@ -178,17 +180,20 @@ public class FileSender implements Callable<Void>, Closeable {
 	/**
 	 * 在一个新线程启动自身
 	 */
-	public void start(){
+	public void start() {
 		selfExecutor.submit(this);
 	}
+
 	public static void main(String[] args) throws Exception {
 
-		String ret0 = FileSender.sendFile(new File("C:/t.txt"), "127.0.0.1",
-				9001);
-		System.out.println(ret0);
+//		String ret0 = FileSender.sendFile(new File("C:/t.txt"), "127.0.0.1",
+//				9001);
+		//System.out.println(ret0);
 
 		FileSender fileSender = new FileSender("127.0.0.1", 9001);
 
+		fileSender.start();
+		
 		synchronized (fileSender) {
 			fileSender.wait();
 		}

@@ -16,14 +16,14 @@ public class FileSenderHandler extends ChannelHandlerAdapter {
 		
 		Promise<String> dp=fileSender.getPromiseQueue().poll();
 		String ret=(String)msg;		
-		dp.setSuccess(ret);
-		
-		if(fileSender.isShutDown.get() && fileSender.getPromiseQueue().size()==0){
-			fileSender.forceClose();
-		}
-		
+		dp.setSuccess(ret);		
 	}
-	
+	@Override
+	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+		if(fileSender.isShutDown.get() && fileSender.getPromiseQueue().size()==0){
+			fileSender.forceClose();	
+		}
+	}
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception{
 		
