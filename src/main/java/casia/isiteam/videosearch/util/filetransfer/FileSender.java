@@ -6,6 +6,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import casia.isiteam.videosearch.util.Util;
@@ -26,6 +28,10 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.stream.ChunkedFile;
 import io.netty.handler.stream.ChunkedWriteHandler;
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timeout;
+import io.netty.util.Timer;
+import io.netty.util.TimerTask;
 import io.netty.util.concurrent.DefaultEventExecutor;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
@@ -33,6 +39,7 @@ import io.netty.util.concurrent.FutureListener;
 import io.netty.util.concurrent.Promise;
 
 public class FileSender implements Callable<Void>, Closeable {
+	long TimeOutPeriod=30;
 	String host;
 	int fileTransferPort;
 	Channel ch = null;
@@ -47,26 +54,60 @@ public class FileSender implements Callable<Void>, Closeable {
 
 	ConcurrentLinkedQueue<Promise<String>> promiseQueue = new ConcurrentLinkedQueue<Promise<String>>();
 
+	Timer timer=new HashedWheelTimer();
 	public FileSender(String host, int fileTransferPort) {
 		this.host = host;
 		this.fileTransferPort = fileTransferPort;
+		
+		timer.newTimeout(new CheckPromise(), TimeOutPeriod, TimeUnit.SECONDS);
 	}
 
 	/**
-	 * 关闭连接和线程组，保证任务都完成
+	 * 由于请求都是顺序发送，有一个没收到回复，后面的都认为是失败了
+	 * @author dell
+	 *
+	 */
+	private class CheckPromise implements TimerTask{
+		int lastPromiseSize=promiseQueue.size();
+		@Override
+		public void run(Timeout timeout) throws Exception {
+			if(lastPromiseSize==promiseQueue.size()){
+				setAllPromiseFailed(new TimeoutException("operation time out!"));
+				FileSender.this.forceClose();			
+				
+				return;
+			}else{
+				lastPromiseSize=promiseQueue.size();
+				timer.newTimeout(this, TimeOutPeriod, TimeUnit.SECONDS);
+			}		
+		}
+		
+	}
+	
+	synchronized private void setAllPromiseFailed(Throwable cause){
+		Promise [] promises = new Promise[promiseQueue.size()];
+		promises = promiseQueue.toArray(promises);
+		
+		promiseQueue.clear();
+		for(Promise<String> promise:promises){
+			promise.setFailure(cause);
+		}
+	}
+	
+	
+	/**
+	 * 关闭连接和线程组，保证任务都完成，调用后由timer负责等待所有请求都接收到回复，然后关闭
 	 */
 	@Override
 	public void close() {
 		isShutDown.set(true);
 		// 等待所有队列中的promise收到回复后，由handler调用forceclose关闭
-		System.out.println("CLose");
 	}
 
 	public void forceClose() {
 		isShutDown.set(true);
 		ch.close();
-		selfExecutor.shutdown();
-		System.out.println("forceCLose");
+		selfExecutor.shutdownNow();
 	}
 
 	public Future<String> sendFile(final File file) throws Exception {
@@ -210,7 +251,6 @@ public class FileSender implements Callable<Void>, Closeable {
 			public void operationComplete(Future<String> future)
 					throws Exception {
 				System.out.println(finalFileSender.ch.isOpen());
-				
 			}
 		});
 		

@@ -69,18 +69,18 @@ public class FileReceiverHandler extends ChannelHandlerAdapter {
 			ctx.writeAndFlush(Unpooled.copiedBuffer(file.getName().getBytes()));
 			file = null;		
 			
-			System.out.println("received one file");
-			//这里接收完一个文件就关闭，但是发送两个文件是没问题的。！！
-			ctx.close().addListener(new ChannelFutureListener() {
-
-				@Override
-				public void operationComplete(ChannelFuture future)
-						throws Exception {
-					// TODO Auto-generated method stub
-					System.out.println("close");
-				}
-
-			});
+//			System.out.println("received one file");
+//			//这里接收完一个文件就关闭，但是发送两个文件是没问题的。！！
+//			ctx.close().addListener(new ChannelFutureListener() {
+//
+//				@Override
+//				public void operationComplete(ChannelFuture future)
+//						throws Exception {
+//					// TODO Auto-generated method stub
+//					System.out.println("close");
+//				}
+//
+//			});
 		}
 
 	}

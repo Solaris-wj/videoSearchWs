@@ -12,20 +12,10 @@ public class FileSenderHandler extends ChannelHandlerAdapter {
 	}
 	
 	@Override
-	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception{
-		
+	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception{		
 		Promise<String> dp=fileSender.getPromiseQueue().poll();
 		String ret=(String)msg;		
 		dp.setSuccess(ret);		
-	}
-	@Override
-	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		System.out.println(ctx.channel().isOpen());
-		if(fileSender.isShutDown.get() && fileSender.getPromiseQueue().size()==0){
-			System.out.println("will call force close");
-			fileSender.forceClose();	
-		}
-		System.out.println("channel inactive");
 	}
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception{
