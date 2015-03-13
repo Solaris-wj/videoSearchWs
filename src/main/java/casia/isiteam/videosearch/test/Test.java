@@ -30,5 +30,7 @@ public class Test {
 		System.out.println(masterIndexerClient.addVideo(fileID));
 		System.out.println(masterIndexerClient.delete(fileID));
 		System.out.println(masterIndexerClient.searchVideo(localFileName));
+		
+		
 	}
 }
